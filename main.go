@@ -31,12 +31,13 @@ func main() {
     );`
     _, err = db.Exec(todoTableSQL)
     if err != nil {
-        log.Fatal("テーブル作成エラー:", err)
+        log.Fatal("error:", err)
     }
-    fmt.Println("tasksテーブルの準備もOKです！")
+    fmt.Println("ready")
 
 	http.HandleFunc("/add", add)
-	fmt.Println("サーバー起動: 待機中です...")
+	http.HandleFunc("/list", list)
+	fmt.Println("waiting for requests...")
 	http.ListenAndServe(":8080", nil)
 }
 
@@ -45,10 +46,36 @@ func add(w http.ResponseWriter, r *http.Request) {
 
 	_, err := db.Exec("INSERT INTO tasks (title) VALUES (?)", title)
 	if err != nil {
-		fmt.Printf("タスク追加できなかった: %v\n", err)
-		fmt.Fprintf(w, "タスク追加できなかった: %v\n", err)
+		fmt.Printf("Added failed: %v\n", err)
+		fmt.Fprintf(w, "Added failed: %v\n", err)
 		return
 	}
-	fmt.Printf("タスクを追加できた: %s\n", title)
-	fmt.Fprintf(w, "タスクを追加できた: %s\n", title)
+	fmt.Printf("Added: %s\n", title)
+	fmt.Fprintf(w, "Added: %s\n", title)
+}
+
+func list(w http.ResponseWriter, r *http.Request) {
+	rows,err := db.Query("SELECT id, title FROM tasks")
+	if err != nil {
+		fmt.Fprintf(w,"Loading error: %v\n", err)
+		return
+	}
+	defer rows.Close()
+
+	fmt.Fprintln(w, "--タスク一覧--:")
+
+	for rows.Next() {
+		var id int
+		var title string
+		if err := rows.Scan(&id, &title); err != nil {
+			fmt.Fprintf(w, "Loading error: %v\n", err)
+			return
+		}
+
+		fmt.Fprintf(w, "%d: %s\n", id, title)
+	}
+
+	if err := rows.Err(); err != nil {
+		fmt.Fprintf(w, "Loading error: %v\n", err)
+	}
 }
