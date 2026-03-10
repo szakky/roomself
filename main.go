@@ -15,12 +15,12 @@ func main() {
 	var err error
 	db,err = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/todo_app?parseTime=true")
 	if err != nil {
-		log.Fatal("DB error:", err)
+		log.Fatal("db error:", err)
 	}
 	defer db.Close()
 
 	if err = db.Ping(); err != nil {
-		log.Fatal("DB error:", err)
+		log.Fatal("db error:", err)
 	}
 	fmt.Println("db connected")
 
@@ -42,6 +42,7 @@ func main() {
 
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/list", list)
+	http.Handle("/", http.FileServer(http.Dir(".")))
 	fmt.Println("waiting for requests...")
 	http.ListenAndServe(":8080", nil)
 }
@@ -50,18 +51,24 @@ func add(w http.ResponseWriter, r *http.Request) {
 	title := r.URL.Query().Get("title")
 	categorize := r.URL.Query().Get("categorize")
 	memo := r.URL.Query().Get("memo")
+	doneGet := r.URL.Query().Get("done")
 
-	_, err := db.Exec("INSERT INTO tasks (title, categorize, memo) VALUES (?, ?, ?)", title, categorize, memo)
+	done := false
+	if doneGet == "true" {
+		done = true
+	}
+
+	_, err := db.Exec("INSERT INTO tasks (title, categorize, memo,done) VALUES (?, ?, ?, ?)", title, categorize, memo, done)
 	if err != nil {
 		fmt.Printf("Added failed: %v\n", err)
 		fmt.Fprintf(w, "Added failed: %v\n", err)
 		return
 	}
-	fmt.Fprintf(w, "Added: %s (Categorize: %s, Memo: %s)\n", title, categorize, memo)
+	fmt.Fprintf(w, "Added: %s (Categorize: %s, Memo: %s, Done: %v)\n", title, categorize, memo, done)
 }
 
 func list(w http.ResponseWriter, r *http.Request) {
-	rows,err := db.Query("SELECT id, title, categorize, memo FROM tasks")
+	rows,err := db.Query("SELECT id, title, categorize, memo, done FROM tasks WHERE done = 0")
 	if err != nil {
 		fmt.Fprintf(w,"Loading error: %v\n", err)
 		return
@@ -75,13 +82,14 @@ func list(w http.ResponseWriter, r *http.Request) {
 		var title string
 		var categorize string
 		var memo string
+		var done bool
 		
-		if err := rows.Scan(&id, &title, &categorize, &memo); err != nil {
+		if err := rows.Scan(&id, &title, &categorize, &memo, &done); err != nil {
 			fmt.Fprintf(w, "Loading error: %v\n", err)
 			return
 		}
 
-		fmt.Fprintf(w, "%d: %s (Categorize: %s, Memo: %s)\n", id, title, categorize, memo)
+		fmt.Fprintf(w, "%d: %s (Categorize: %s, Memo: %s, Done: %v)\n", id, title, categorize, memo, done)
 	}
 
 	if err := rows.Err(); err != nil {
