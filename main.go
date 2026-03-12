@@ -42,7 +42,7 @@ func main() {
 
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/list", list)
-	http.Handle("/", http.FileServer(http.Dir(".")))
+	http.HandleFunc("/", front)
 	fmt.Println("waiting for requests...")
 	http.ListenAndServe(":8080", nil)
 }
@@ -95,4 +95,42 @@ func list(w http.ResponseWriter, r *http.Request) {
 	if err := rows.Err(); err != nil {
 		fmt.Fprintf(w, "Loading error: %v\n", err)
 	}
+}
+
+func front(w http.ResponseWriter, r *http.Request) {
+	html := `
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Todo</title>
+		<style>
+			body {
+				font-family: sans-serif;
+				padding: 20px;
+			}
+			div {
+				margin-bottom: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Add Task</h1>
+		<form action="/add" method="GET">
+			<div>title: <input type="text" name="title" required></div>
+			<div>categorize: <input type="text" name="categorize" required></div>
+			<div>memo: <input type="text" name="memo"></div>
+			<div>done: <input type="checkbox" name="done" value="true"></div>
+			
+			<button type="submit">Add Task</button>
+		</form>
+		
+		<hr>
+		
+		<a href="/list">View Task List</a>
+	</body>
+	</html>
+	`
+
+	fmt.Fprint(w, html)
 }
