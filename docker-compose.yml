@@ -3,6 +3,7 @@ version: '3.8'
 services:
   app:
     build: .
+    restart: always
     ports:
       - "8080:8080"
     env_file:
@@ -13,7 +14,7 @@ services:
   db:
     image: mysql:8.0
     ports:
-      - "3306:3306"
+      - "3307:3306"
     env_file:
       - .env
     volumes:
