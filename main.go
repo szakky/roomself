@@ -15,20 +15,8 @@ import (
 var db *sql.DB
 
 func main() {
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASSWORD")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_NAME")
-
-	if dbUser == "" {
-		log.Fatal("error: DB_USER is not set")
-	}
-
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbUser, dbPass, dbHost, dbPort, dbName)
-
 	var err error
-	db, err = sql.Open("mysql", dsn)
+	db, err = Connect()
 	if err != nil {
 		log.Fatal("db error:", err)
 	}
@@ -38,26 +26,10 @@ func main() {
 		log.Fatal("db error:", err)
 	}
 	fmt.Println("db connected")
-
-	todoTableSQL := `
-    CREATE TABLE IF NOT EXISTS tasks (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        title VARCHAR(255) NOT NULL,
-		categorize VARCHAR(255) NOT NULL,
-		done BOOLEAN NOT NULL DEFAULT FALSE,
-		memo TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );`
-
-    _, err = db.Exec(todoTableSQL)
-    if err != nil {
-        log.Fatal("error:", err)
-    }
     fmt.Println("ready")
 
 	http.HandleFunc("/top", topPage)
 	http.HandleFunc("/login", enterRoom)
-
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/list", list)
 	http.HandleFunc("/update-task", updateTask)
@@ -277,20 +249,17 @@ func getColorForTag(tag string) string {
 }
 
 func front(w http.ResponseWriter, r *http.Request) {
-	// 1. 継続日数を取得
 	streakCount := getStreak(db)
 
-	// 2. 今日の日付を取得
 	jst := time.FixedZone("JST", 9*60*60)
 	todayStr := time.Now().In(jst).Format("2006-01-02")
 
-	// 3. 今日のタスクだけをDBから取得
 	rows, err := db.Query("SELECT id, title, categorize, memo FROM tasks WHERE done = 0 AND DATE(created_at) = ?", todayStr)
 	if err != nil {
 		http.Error(w, "DB Error", http.StatusInternalServerError)
 		return
 	}
-	defer rows.Close() // ← ダブっていた部分は1つにまとめました！
+	defer rows.Close()
 
 	var tasksHTML string
 	for rows.Next() {
@@ -340,8 +309,6 @@ func front(w http.ResponseWriter, r *http.Request) {
 	if tasksHTML == "" {
 		tasksHTML = `<p style="text-align:center; color:#888;">タスクはありません</p>`
 	}
-
-	// ※ここにあった 2回目の streakCount := getStreak(db) は削除しました！
 
 	html := fmt.Sprintf(`
     <!DOCTYPE html>
