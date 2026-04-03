@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
+	"html/template"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -28,7 +28,7 @@ func main() {
 	fmt.Println("db connected")
     fmt.Println("ready")
 
-	http.HandleFunc("/top", topPage)
+	http.HandleFunc("/", topPage)
 	http.HandleFunc("/login", enterRoom)
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/list", list)
@@ -41,34 +41,18 @@ func main() {
 }
 
 func topPage(w http.ResponseWriter, r *http.Request) {
-		html := `
-    <!DOCTYPE html>
-    <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Group ToDo - Top</title>
-        <style>
-            body { font-family: sans-serif; background-color: #f5f5f7; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-            .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 300px; }
-            h1 { color: #333; margin-bottom: 30px; }
-            input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-            button { width: 100%; padding: 12px; background-color: #007aff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
-            button:hover { background-color: #005bb5; }
-	      </style>
-    </head>
-    <body>
-        <div class="login-box">
-            <h1>Todo Room</h1>
-            <form action="/login" method="POST">
-                <input type="text" name="room_id" placeholder="room_id (例: project-a)" required>
-                <input type="password" name="password" placeholder="key (任意)">
-                <button type="submit">Roomに入る</button>
-            </form>
-       </div>
-    </body>
-    </html>`
-	fmt.Fprint(w, html)
+	tmpl, err := template.ParseFiles("templates/top.html")
+	if err != nil {
+		http.Error(w, "parse Error", http.StatusInternalServerError)
+		log.Println("parse error:", err)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, "execute Error", http.StatusInternalServerError)
+		log.Println("execute error:", err)
+		return
+	}
 }
 
 func enterRoom(w http.ResponseWriter, r *http.Request) {
