@@ -9,7 +9,7 @@ RUN go mod download
 
 # ソースコードのコピーとビルド
 COPY . .
-RUN go build -o todo-api main.go
+RUN go build -o todo-api .
 
 # 実行用のステージ (マルチステージビルドで軽量化)
 FROM alpine:latest
@@ -18,6 +18,8 @@ WORKDIR /app
 
 # ビルドしたバイナリをコピー
 COPY --from=builder /app/todo-api .
+
+COPY --from=builder /app/templates ./templates
 
 # ポートのエクスポート
 EXPOSE 8080
