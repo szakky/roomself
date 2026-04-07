@@ -30,7 +30,7 @@ func main() {
 
 	http.HandleFunc("/top", topPage)
 	http.HandleFunc("/login", enterRoom)
-	http.HandleFunc("/room/", roomPage)
+	http.HandleFunc("/", roomPage)
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/list", list)
 	http.HandleFunc("/update", updateTask)

@@ -7,6 +7,37 @@
     <style>
         body { font-family: sans-serif; background-color: #f5f5f7; padding: 20px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 400px; }
+        
+        /* ヘッダー部分のスタイル（追加） */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .home-button {
+            text-decoration: none;
+            font-size: 28px;
+            transition: transform 0.2s;
+        }
+        .home-button:hover {
+            transform: scale(1.1);
+        }
+        .delete-all-button {
+            background-color: #ff3b30;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(255, 59, 48, 0.3);
+            transition: background-color 0.2s;
+        }
+        .delete-all-button:hover {
+            background-color: #d70015;
+        }
+
         .streak-banner {
             background: linear-gradient(135deg, #ff9500, #ff3b30);
             color: white;
@@ -33,6 +64,11 @@
 </head>
 <body>
     <div class="app-container">
+        <div class="header-actions">
+            <a href="/top" class="home-button" title="トップページへ戻る">🏠</a>
+            <a href="/delete-all?room_id={{$.RoomID}}" class="delete-all-button" onclick="return confirm('本当にすべてのタスクを削除しますか？');">Delete All</a>
+        </div>
+
         <div class="streak-banner">🔥 {{.StreakCount}}日継続中!! 🔥</div>
 
         <form action="/add" method="GET" class="input-form">
