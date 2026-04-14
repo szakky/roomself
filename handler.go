@@ -32,7 +32,7 @@ func enterRoom(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/?room_id="+roomID, http.StatusSeeOther)
+	http.Redirect(w, r, "/room/?room_id="+roomID, http.StatusSeeOther)
 }
 
 func add(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +59,7 @@ func add(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w,r, "/?room_id="+roomID, http.StatusSeeOther)
+	http.Redirect(w,r, "/room/?room_id="+roomID, http.StatusSeeOther)
 }
 
 func updateTask(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +80,7 @@ func updateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/?room_id="+roomID, http.StatusSeeOther)
+	http.Redirect(w, r, "/room/?room_id="+roomID, http.StatusSeeOther)
 }
 
 func deleteTask(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +99,7 @@ func deleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/?room_id="+roomID, http.StatusSeeOther)
+	http.Redirect(w, r, "/room/?room_id="+roomID, http.StatusSeeOther)
 }
 
 func deleteAll(w http.ResponseWriter, r *http.Request) {
@@ -111,5 +111,5 @@ func deleteAll(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Delete failed", http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/?room_id="+roomID, http.StatusSeeOther)
+	http.Redirect(w, r, "/room/?room_id="+roomID, http.StatusSeeOther)
 }

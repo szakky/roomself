@@ -28,9 +28,9 @@ func main() {
 	fmt.Println("db connected")
     fmt.Println("ready")
 
-	http.HandleFunc("/top", topPage)
+	http.HandleFunc("/", topPage)
 	http.HandleFunc("/login", enterRoom)
-	http.HandleFunc("/", roomPage)
+	http.HandleFunc("/room/", roomPage)
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/update", updateTask)
 	http.HandleFunc("/delete", deleteTask)
