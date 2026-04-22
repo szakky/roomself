@@ -11,23 +11,6 @@ import (
 )
 
 func topPage(w http.ResponseWriter, r *http.Request) {
-	rows, err := conn.Query("SELECT room_id FROM room_history ORDER BY last_accessed DESC LIMIT 10")
-	if err != nil {
-		http.Error(w, "DB Error", http.StatusInternalServerError)
-		return
-	}
-	defer rows.Close()
-
-	var roomHistory []string
-	for rows.Next() {
-		var roomID string
-		if err := rows.Scan(&roomID); err != nil {
-			http.Error(w, "DB Error", http.StatusInternalServerError)
-			return
-		}
-		roomHistory = append(roomHistory, roomID)
-	}
-
 	tmpl, err := template.ParseFiles("templates/top.html")
 	if err != nil {
 		http.Error(w, "parse Error", http.StatusInternalServerError)
@@ -35,9 +18,7 @@ func topPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{
-		"RoomHistory": roomHistory,
-	}
+	data := map[string]interface{}{}
 
 	err = tmpl.Execute(w, data)
 	if err != nil {
@@ -52,11 +33,6 @@ func enterRoom(w http.ResponseWriter, r *http.Request) {
 	if roomID == "" {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
-	}
-
-	_, err := conn.Exec("INSERT INTO room_history (room_id) VALUES (?) ON DUPLICATE KEY UPDATE last_accessed = CURRENT_TIMESTAMP", roomID)
-	if err != nil {
-		fmt.Printf("Failed to record room history: %v\n", err)
 	}
 
 	http.Redirect(w, r, "/room/?room_id="+roomID, http.StatusSeeOther)

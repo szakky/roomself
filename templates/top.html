@@ -21,28 +21,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>Todo Room</h1>
+        <h1>Room Todo</h1>
         
         <div class="form-section">
             <form action="/login" method="POST">
-                <input type="text" name="room_id" placeholder="room_id (例: project-a)" required>
-                <button type="submit">Roomに入る</button>
+                <input type="text" name="room_id" placeholder="room_id (例: project-A)" required>
+                <button type="submit">Enter Room</button>
             </form>
         </div>
 
-        {{if .RoomHistory}}
-        <div class="history-section">
-            <div class="history-title">Recent Rooms</div>
-            {{range .RoomHistory}}
-            <form action="/login" method="POST" style="margin: 0;">
-                <input type="hidden" name="room_id" value="{{.}}">
-                <button type="submit" class="room-button">{{.}}</button>
-            </form>
-            {{end}}
-        </div>
-        {{else}}
-        <div class="empty-message">No room history yet</div>
-        {{end}}
     </div>
 </body>
 </html>
