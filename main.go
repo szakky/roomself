@@ -26,7 +26,6 @@ func main() {
 	log.Println("ready")
 
 	http.HandleFunc("/", topPage)
-	http.HandleFunc("/login", enterRoom)
 	http.HandleFunc("/room/", roomPage)
 	http.HandleFunc("/add", add)
 	http.HandleFunc("/update", updateTask)

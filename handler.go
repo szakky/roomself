@@ -26,15 +26,6 @@ func topPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func enterRoom(w http.ResponseWriter, r *http.Request) {
-	roomID := r.FormValue("room_id")
-	if roomID == "" {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
-	http.Redirect(w, r, "/room/?room_id="+roomID, http.StatusSeeOther)
-}
 
 type TaskView struct {
 	ID         int
@@ -50,7 +41,7 @@ func roomPage(w http.ResponseWriter, r *http.Request) {
 	todayStr := time.Now().In(jst).Format("2006-01-02")
 	roomID := r.URL.Query().Get("room_id")
 
-	rows, err := conn.Query("SELECT id, title, categorize, COALESCE(memo, '') FROM tasks WHERE done = 0 AND DATE(created_at) = ? AND room_id = ?", todayStr, roomID)
+	rows, err := conn.Query("SELECT id, title, categorize, COALESCE(memo, '') FROM tasks WHERE DATE(created_at) = ? AND room_id = ?", todayStr, roomID)
 	if err != nil {
 		http.Error(w, "DB Error", http.StatusInternalServerError)
 		return
